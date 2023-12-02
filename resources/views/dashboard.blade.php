@@ -57,7 +57,7 @@ $months = [
             <hr />
             <div class="row">
                 <div class="col-md-12" style="padding-left: 30px; text-align: center;">
-                    Hai {{ Auth::guard('pengguna')->User()->nama }}, selamat datang di halaman awal Elektronik Arsip Dokumen Perencanaan dan Penganggaran.<br/>
+                    Hai {{ Auth::guard('pengguna')->User()->nama }}, selamat datang di halaman awal Elektronik Arsip Dokumen.<br/>
                     Anda dapat menggunakan menu diatas, ikon dashboard atau fitur pencarian dibawah ini.
                 </div>
             </div>

@@ -33,6 +33,7 @@ class SuratMasukController extends Controller
      */
     public function index(Request $request)
     {
+
         $role = Auth::guard('pengguna')->User()->role;
         $unit_id = Auth::guard('pengguna')->User()->unit_id;
 
@@ -43,27 +44,27 @@ class SuratMasukController extends Controller
         $filter_text = strtolower($request->filter_text);
 
         $suratMasuk = SuratMasuk::with('unit', 'kategori', 'tahap')
-            ->where(function($q) use($filter_unit, $filter_kategori, $filter_text, $filter_year, $filter_month){
-                if($filter_unit){
+            ->where(function ($q) use ($filter_unit, $filter_kategori, $filter_text, $filter_year, $filter_month) {
+                if ($filter_unit) {
                     $q->where('unit_id', $filter_unit);
                 }
-                if($filter_kategori){
+                if ($filter_kategori) {
                     $q->where('kategori_id', $filter_kategori);
                 }
-                if($filter_text){
+                if ($filter_text) {
                     $q->whereRaw(DB::raw("(
-                        LOWER(nomor) LIKE '%".$filter_text."%'
-                        OR LOWER(perihal) LIKE '%".$filter_text."%'
+                        LOWER(nomor) LIKE '%" . $filter_text . "%'
+                        OR LOWER(perihal) LIKE '%" . $filter_text . "%'
                     )"));
                 }
-                if($filter_year){
+                if ($filter_year) {
                     $q->whereRaw(DB::raw("(
-                        DATE_FORMAT(tanggal_terima,'%Y') = '".$filter_year."'
+                        DATE_FORMAT(tanggal_terima,'%Y') = '" . $filter_year . "'
                     )"));
                 }
-                if($filter_month){
+                if ($filter_month) {
                     $q->whereRaw(DB::raw("(
-                        DATE_FORMAT(tanggal_terima,'%m') = '".$filter_month."'
+                        DATE_FORMAT(tanggal_terima,'%m') = '" . $filter_month . "'
                     )"));
                 }
             })
@@ -71,19 +72,19 @@ class SuratMasukController extends Controller
             ->paginate(5);
 
         $jenis = [
-            "Dokumen", 
-            "Surat Rangga", 
+            "Dokumen",
+            "Surat Rangga",
             "Surat Harian",
         ];
 
         $unit = unit::orderBy('id', 'asc')
-            ->where(function($q) use($role, $unit_id){
-                if($role == 'Staf'){
+            ->where(function ($q) use ($role, $unit_id) {
+                if ($role == 'Staf') {
                     $q->where('id', $unit_id);
                 }
             })
             ->get();
-            
+
         $kategori = kategori::orderBy('jenis', 'asc')
             ->orderBy('id', 'asc')
             ->get();
@@ -91,8 +92,11 @@ class SuratMasukController extends Controller
         $tahap = tahap::orderBy('jenis', 'asc')
             ->orderBy('nama', 'asc')
             ->get();
-
-        return view('surat_masuk.surat_masuk', compact('filter_year','filter_unit','filter_kategori','filter_text','suratMasuk','jenis','unit', 'kategori', 'tahap'));
+        if ($request->cetak == 'cetak') {
+            return view('surat_masuk.index', compact('filter_year', 'filter_unit', 'filter_kategori', 'filter_text', 'suratMasuk', 'jenis', 'unit', 'kategori', 'tahap'));
+        } else {
+            return view('surat_masuk.surat_masuk', compact('filter_year', 'filter_unit', 'filter_kategori', 'filter_text', 'suratMasuk', 'jenis', 'unit', 'kategori', 'tahap'));
+        }
     }
 
     /**
@@ -106,8 +110,8 @@ class SuratMasukController extends Controller
         $unit_id = Auth::guard('pengguna')->User()->unit_id;
 
         $unit = unit::orderBy('nama', 'asc')
-            ->where(function($q) use($role, $unit_id){
-                if($role == 'Staf'){
+            ->where(function ($q) use ($role, $unit_id) {
+                if ($role == 'Staf') {
                     $q->where('id', $unit_id);
                 }
             })
@@ -131,14 +135,14 @@ class SuratMasukController extends Controller
     public function store(SuratMasukRequest $request)
     {
         $telaahFile = $request->telaah;
-        $telaahFileName = 'telaah_'. date('YmdHis');
+        $telaahFileName = 'telaah_' . date('YmdHis');
         $telaahFileExtension = $telaahFile->getClientOriginalExtension();
-        $telaahFileName = $telaahFileName.'.'.$telaahFileExtension;
+        $telaahFileName = $telaahFileName . '.' . $telaahFileExtension;
 
         $lampiranFile = $request->lampiran;
-        $lampiranFileName = 'dokumen_'. date('YmdHis');
+        $lampiranFileName = 'dokumen_' . date('YmdHis');
         $lampiranFileExtension = $lampiranFile->getClientOriginalExtension();
-        $lampiranFileName = $lampiranFileName.'.'.$lampiranFileExtension;
+        $lampiranFileName = $lampiranFileName . '.' . $lampiranFileExtension;
 
         # set array data
         $data = [
@@ -167,10 +171,10 @@ class SuratMasukController extends Controller
         $storeSuratMasuk = SuratMasuk::create($data);
 
         return redirect('/surat-masuk')
-        ->with([
-            'status' => 'success',
-            'notification' => 'Data berhasil disimpan!'
-        ]);
+            ->with([
+                'status' => 'success',
+                'notification' => 'Data berhasil disimpan!'
+            ]);
     }
 
     /**
@@ -198,8 +202,8 @@ class SuratMasukController extends Controller
         $suratMasuk = $checkSuratMasuk;
 
         $unit = unit::orderBy('nama', 'asc')
-            ->where(function($q) use($role, $unit_id){
-                if($role == 'Staf'){
+            ->where(function ($q) use ($role, $unit_id) {
+                if ($role == 'Staf') {
                     $q->where('id', $unit_id);
                 }
             })
@@ -238,14 +242,14 @@ class SuratMasukController extends Controller
             $checkOldLampiranFile = SuratMasuk::find($id);
             $oldLampiranFile = $checkOldLampiranFile->lampiran;
 
-            if(!empty($oldLampiranFile)){
+            if (!empty($oldLampiranFile)) {
                 $deleteLampiranFile = Storage::disk('uploads')
-                    ->delete('documents/surat-masuk/'.$oldLampiranFile);
+                    ->delete('documents/surat-masuk/' . $oldLampiranFile);
 
                 $uploadLampiranFile = $this
                     ->lampiranFileServe
                     ->uploadLampiranFile($lampiranFile, $lampiranFileName);
-            }else{
+            } else {
                 $uploadLampiranFile = $this
                     ->lampiranFileServe
                     ->uploadLampiranFile($lampiranFile, $lampiranFileName);
@@ -263,7 +267,7 @@ class SuratMasukController extends Controller
 
             $storeSuratMasuk = SuratMasuk::where('id', $id)
                 ->update($data);
-        }else{
+        } else {
             # set array data
             $data = [
                 'unit_id' => $unitID,

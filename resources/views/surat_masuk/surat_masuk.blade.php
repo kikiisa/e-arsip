@@ -81,7 +81,8 @@ Dashboard &raquo; Surat Masuk | Aplikasi Manajemen Surat
                         <input type="text" name="filter_text" class="form-control" placeholder="Masukkan kata kunci" style="width: 250px" value="{{ $filter_text }}">
                     </div>
                     <button type="submit" class="btn btn-primary mb-2">Tampilkan</button>
-                    </form>
+                    <button type="submit" class="btn btn-primary mb-2 ms-2" name="cetak" value="cetak">Cetak PDF</button>    
+                </form>
                 </div>
                 <hr/>
                 <div>
